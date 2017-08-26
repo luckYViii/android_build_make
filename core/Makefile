@@ -1,4 +1,13 @@
 # Put some miscellaneous rules here
+#
+# Build system colors
+#
+# PFX: Prefix "target C++:" in yellow
+# INS: Module "Install:" output color (cyan for ics)
+
+ifneq ($(BUILD_WITH_COLORS),0)
+    include $(TOP_DIR)build/core/colors.mk
+endif
 
 # HACK: clear LOCAL_PATH from including last build target before calling
 # intermedites-dir-for
@@ -4981,8 +4990,28 @@ $(INTERNAL_OTA_PACKAGE_TARGET): $(BUILT_TARGET_FILES_PACKAGE) $(OTA_FROM_TARGET_
 	@echo "Package OTA: $@"
 	$(call build-ota-package-target,$@,-k $(KEY_CERT_PAIR) --backup=$(backuptool) --output_metadata_path $(INTERNAL_OTA_METADATA))
 
-.PHONY: otapackage
+TOXYC_TARGET_PACKAGE := $(PRODUCT_OUT)/$(TOXYC_VERSION).zip
+
+.PHONY: otapackage toxyc
 otapackage: $(INTERNAL_OTA_PACKAGE_TARGET)
+toxyc: otapackage
+	$(hide) ln -f $(INTERNAL_OTA_PACKAGE_TARGET) $(TOXYC_TARGET_PACKAGE)
+	$(hide) $(MD5SUM) $(TOXYC_TARGET_PACKAGE) > $(TOXYC_TARGET_PACKAGE).md5sum
+	@echo -e ${CL_RED}"                                                 	       "${CL_RED}
+	@echo -e ${CL_RED}"************************************************************"${CL_RED}
+	@echo -e ${CL_RED}"                                                            "${CL_RED}
+	@echo -e ${CL_RED}"████████╗ ██████╗ ██╗  ██╗██╗   ██╗ ██████╗ ██████╗ ███████╗"${CL_RED}
+	@echo -e ${CL_RED}"╚══██╔══╝██╔═══██╗╚██╗██╔╝╚██╗ ██╔╝██╔════╝██╔═══██╗██╔════╝"${CL_RED}
+	@echo -e ${CL_RED}"   ██║   ██║   ██║ ╚███╔╝  ╚████╔╝ ██║     ██║   ██║███████╗"${CL_RED}
+	@echo -e ${CL_RED}"   ██║   ██║   ██║ ██╔██╗   ╚██╔╝  ██║     ██║   ██║╚════██║"${CL_RED}
+	@echo -e ${CL_RED}"   ██║   ╚██████╔╝██╔╝ ██╗   ██║   ╚██████╗╚██████╔╝███████║"${CL_RED}
+	@echo -e ${CL_RED}"   ╚═╝    ╚═════╝ ╚═╝  ╚═╝   ╚═╝    ╚═════╝ ╚═════╝ ╚══════╝"${CL_RED}
+	@echo -e ${CL_RED}"                                                	       "${CL_RED}
+	@echo -e ${CL_RED}"************************************************************"${CL_RED}
+	@echo -e ${CL_RED}"                    StayToxicated	           	       "${CL_RED}
+	@echo -e ${CL_RED}"************************************************************"${CL_RED}
+	@echo -e ${CL_RED}"                                             	       "${CL_RED}
+	@echo -e "**Package complete**: $(TOXYC_TARGET_PACKAGE)"
 
 ifeq ($(BOARD_BUILD_RETROFIT_DYNAMIC_PARTITIONS_OTA_PACKAGE),true)
 name := $(TARGET_PRODUCT)
